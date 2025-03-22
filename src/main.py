@@ -8,7 +8,8 @@ def main():
     service = Service(client)
     collector = Collector(service)
 
-    collector.collect_all_posts("club51059456")
+    collector.collect_all_posts("club51059456",
+                                "data/raw/depression/posts")
 
 
 if __name__ == "__main__":
