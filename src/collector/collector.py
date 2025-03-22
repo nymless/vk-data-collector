@@ -28,10 +28,12 @@ class Collector:
             )
             items = response["response"]["items"]
 
+            # Make chunk json files
             chunk_path = posts_path.joinpath(f"{domain}_posts_{i}.json")
             with open(chunk_path, "w", encoding=self.encoding) as f:
                 json.dump(items, f, ensure_ascii=False)
 
+        # Make joint json file
         file_path = posts_path.joinpath(f"{domain}_posts.json")
         with open(file_path, "w", encoding=self.encoding) as f:
             posts = []
@@ -42,6 +44,7 @@ class Collector:
                     posts.extend(items)
             json.dump(posts, f, ensure_ascii=False)
 
+        # Remove chunk json files
         for i in range(runs):
             chunk_path = posts_path.joinpath(f"{domain}_posts_{i}.json")
             os.remove(chunk_path)
