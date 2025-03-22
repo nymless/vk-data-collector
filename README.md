@@ -1,3 +1,3 @@
 # Data Collector
 
-Collects raw data from VK API
+Collects data from VK API
