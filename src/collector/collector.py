@@ -53,3 +53,19 @@ class Collector:
     def collect_all_posts(self, domains: list[str], path: str) -> None:
         for domain in domains:
             self.collect_all_posts(domain, path)
+
+    def collect_groups(self, domains: str, path: str) -> None:
+        groups_path = Path(path)
+        groups_path.mkdir(parents=True, exist_ok=True)
+
+        fields = (
+            "activity,wall,city,description,cover,members_count,place,site,"
+            "status,public_date_label,age_limits,has_photo,wiki_page,verified"
+        )
+        response = self.service.get_groups_by_domains(domains, fields=fields)
+
+        groups = response["response"]["groups"]
+
+        file_path = groups_path.joinpath("groups.json")
+        with open(file_path, "w", encoding=self.encoding) as f:
+            json.dump(groups, f, ensure_ascii=False)

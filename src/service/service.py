@@ -1,5 +1,6 @@
 from client.client import Client
 from lib.decorators.rate_limited import rate_limited
+from lib.types.methods.groups_get_by_id import GroupsGetById
 from lib.types.methods.wall_get import WallGet
 
 
@@ -23,7 +24,12 @@ class Service:
 
         return response.json()
 
-    def get_wall_posts_by_domain(self, domain, **params) -> WallGet:
+    def get_wall_posts_by_domain(self, domain: str, **params) -> WallGet:
         method = "wall.get"
         params["domain"] = domain
+        return self._execute_request(method, params)
+
+    def get_groups_by_domains(self, domains: str, **params) -> GroupsGetById:
+        method = "groups.getById"
+        params["group_ids"] = domains
         return self._execute_request(method, params)
