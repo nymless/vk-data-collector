@@ -11,10 +11,10 @@ def main():
     depression_groups = ["club51059456"]
     control_groups = ["mshsrf", "artandtoysgroup", "mamkrasnodar"]
 
-    collector.collect_all_posts(depression_groups, "data/raw/posts/depression")
-    collector.collect_all_posts(control_groups, "data/raw/posts/control")
-    collector.collect_groups(",".join(depression_groups), "data/raw/groups/depression")
-    collector.collect_groups(",".join(control_groups), "data/raw/groups/control")
+    collector.collect_all_posts(depression_groups, "data/posts/depression")
+    collector.collect_all_posts(control_groups, "data/posts/control")
+    collector.collect_groups(",".join(depression_groups), "data/groups/depression")
+    collector.collect_groups(",".join(control_groups), "data/groups/control")
 
 
 if __name__ == "__main__":
