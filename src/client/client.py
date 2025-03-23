@@ -9,8 +9,6 @@ load_dotenv()
 class Client:
     base_url = "https://api.vk.com"
 
-    _user_token = ""
-
     def __init__(self):
         self.service_token = os.getenv("SERVICE_TOKEN")
 
