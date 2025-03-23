@@ -54,7 +54,7 @@ class Collector:
         for domain in domains:
             self.collect_all_posts(domain, path)
 
-    def collect_groups(self, domains: str, path: str) -> None:
+    def collect_groups(self, domains: list[str], path: str) -> None:
         groups_path = Path(path)
         groups_path.mkdir(parents=True, exist_ok=True)
 
@@ -62,7 +62,7 @@ class Collector:
             "activity,wall,city,description,cover,members_count,place,site,"
             "status,public_date_label,age_limits,has_photo,wiki_page,verified"
         )
-        response = self.service.get_groups_by_domains(domains, fields=fields)
+        response = self.service.get_groups_by_domains(",".join(domains), fields=fields)
 
         groups = response["response"]["groups"]
 

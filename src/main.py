@@ -13,8 +13,8 @@ def main():
 
     collector.collect_all_posts(depression_groups, "data/posts/depression")
     collector.collect_all_posts(control_groups, "data/posts/control")
-    collector.collect_groups(",".join(depression_groups), "data/groups/depression")
-    collector.collect_groups(",".join(control_groups), "data/groups/control")
+    collector.collect_groups(depression_groups, "data/groups/depression")
+    collector.collect_groups(control_groups, "data/groups/control")
 
 
 if __name__ == "__main__":
