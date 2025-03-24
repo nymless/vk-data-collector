@@ -29,7 +29,10 @@ class Service:
         params["domain"] = domain
         return self._execute_request(method, params)
 
-    def get_groups_by_domains(self, domains: str, **params) -> GroupsGetById:
+    def get_groups_by_ids(self, ids: str, **params) -> GroupsGetById:
         method = "groups.getById"
-        params["group_ids"] = domains
+        params["group_ids"] = ids
         return self._execute_request(method, params)
+    
+    def get_groups_by_domains(self, domains: str, **params) -> GroupsGetById:
+        return self.get_groups_by_ids(domains, **params)
