@@ -8,6 +8,7 @@ from lib.types.objects.user import User
 class Response(TypedDict):
     count: int
     items: list[Post]
+    # extended flag
     profiles: list[User]
     groups: list[Group]
 

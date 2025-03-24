@@ -6,6 +6,7 @@ from lib.types.objects.user import User
 
 class Response(TypedDict):
     groups: list[Group]
+    # extended flag
     profiles: list[User]
 
 
