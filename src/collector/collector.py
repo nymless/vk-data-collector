@@ -35,7 +35,7 @@ class Collector:
         total_chunks: int,
         path: Path,
         merge_mode: str = "list",
-    ) -> None:
+    ) -> str:
         """Merge all saved chunks into a single JSON file named '{base_filename}.json'.
 
         The merge_mode parameter defines the merging strategy:
@@ -73,10 +73,14 @@ class Collector:
         for chunk_file_path in chunk_files:
             os.remove(chunk_file_path)
 
-    def collect_all_posts(self, domains: list[str], path: str) -> None:
+        return str(final_file_path)
+
+    def collect_all_posts(self, domains: list[str], path: str) -> list[str]:
         """Collect all posts for the specified VK domains and save them in chunks,
         then merge the chunks into a single output file.
         """
+        final_saved_files = []
+
         for domain in domains:
             posts_path = self._process_path(path)
 
@@ -92,13 +96,19 @@ class Collector:
                 response = self.service.get_wall_posts_by_domain(
                     domain, count=chunk_size, offset=chunk_size * i
                 )
+                print(
+                    f"COLLECTED POSTS FROM {domain}: {min(chunk_size * (i + 1), count)}/{count}"
+                )
                 items = response["response"]["items"]
 
                 # Save each chunk to a separate file
                 self._write_chunk(base_filename, i, items, posts_path)
 
             # Merge all chunks into a single file and remove temporary chunk files
-            self._merge_chunks(base_filename, runs, posts_path, merge_mode="list")
+            final_saved_files.append(
+                self._merge_chunks(base_filename, runs, posts_path, merge_mode="list")
+            )
+        return final_saved_files
 
     def collect_groups(self, domains: list[str], path: str) -> None:
         """Collect group information for the specified domains and save to groups.json."""
@@ -181,12 +191,14 @@ class Collector:
 
     def collect_comments_for_posts(
         self, post_files: list[str], path: str, posts_chunk_size: int = 100
-    ) -> None:
+    ) -> list[str]:
         """Collect comments for the previously collected posts by processing posts
         in chunks (default: 100 posts per chunk). Each chunk is saved as
         a temporary JSON file, then all chunks are merged into a single output file.
         """
         comments_path = self._process_path(path)
+
+        final_saved_files = []
 
         for post_file in post_files:
             with open(post_file, "r", encoding=self.encoding) as f:
@@ -203,11 +215,11 @@ class Collector:
 
                 comments_dict_chunk = {}
 
-                for post in chunk_posts:
+                for i, post in enumerate(chunk_posts, start=start):
                     if post["comments"]["count"] == 0:
                         continue
-
                     post_comments = self.get_comments(post["owner_id"], post["id"])
+                    print(f"COLLECTED COMMENTS TO POSTS: {i + 1}/{num_posts}")
                     key = f"{post['owner_id']}_{post['id']}"
                     comments_dict_chunk[key] = post_comments
 
@@ -215,6 +227,9 @@ class Collector:
                     base_filename, chunk_index, comments_dict_chunk, comments_path
                 )
 
-            self._merge_chunks(
-                base_filename, total_chunks, comments_path, merge_mode="dict"
+            final_saved_files.append(
+                self._merge_chunks(
+                    base_filename, total_chunks, comments_path, merge_mode="dict"
+                )
             )
+        return final_saved_files
