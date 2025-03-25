@@ -33,7 +33,7 @@ class Service:
         return self._execute_request(method, params)
 
     def get_group_by_domain(self, domain: str, **params) -> GroupsGetById:
-        return self.get_groups_by_id(domain, **params)
+        return self.get_group_by_id(domain, **params)
 
     def get_comments_by_wall_post(
         self, owner_id: int, post_id: int, **params

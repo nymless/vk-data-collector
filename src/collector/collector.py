@@ -122,15 +122,16 @@ class Collector:
 
         saved_files = []
 
-        for domain in domains:
+        for i, domain in enumerate(domains):
             response = self.service.get_group_by_domain(domain, fields=fields)
+            print(f"COLLECTED GROUPS: {i + 1}/{len(domains)}")
 
             groups = response["response"]["groups"]
 
             file_path = groups_path.joinpath(f"{domain}_group.json")
             with open(file_path, "w", encoding=self.encoding) as f:
                 json.dump(groups, f, ensure_ascii=False)
-                
+
             saved_files.append(file_path)
         return saved_files
 
