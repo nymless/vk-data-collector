@@ -6,7 +6,7 @@ from lib.types.methods.wall_get_comments import WallGetComments
 
 
 class Service:
-    RATE_LIMIT = 5
+    RATE_LIMIT = 4
 
     def __init__(self, client: Client):
         self.client = client
