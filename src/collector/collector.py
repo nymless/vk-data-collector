@@ -82,36 +82,23 @@ class Collector:
 
             response = self.service.get_wall_posts_by_domain(domain, count=1)
 
+            # Get the total count of posts and determine the number of chunks
             count = response["response"]["count"]
             chunk_size = 100
             runs = (count + chunk_size - 1) // chunk_size
 
+            base_filename = f"{domain}_posts"
             for i in range(runs):
                 response = self.service.get_wall_posts_by_domain(
                     domain, count=chunk_size, offset=chunk_size * i
                 )
                 items = response["response"]["items"]
 
-                # Make chunk json files
-                chunk_path = posts_path.joinpath(f"{domain}_posts_{i}.json")
-                with open(chunk_path, "w", encoding=self.encoding) as f:
-                    json.dump(items, f, ensure_ascii=False)
+                # Save each chunk to a separate file
+                self._write_chunk(base_filename, i, items, posts_path)
 
-            # Make joint json file
-            file_path = posts_path.joinpath(f"{domain}_posts.json")
-            with open(file_path, "w", encoding=self.encoding) as f:
-                posts = []
-                for i in range(runs):
-                    chunk_path = posts_path.joinpath(f"{domain}_posts_{i}.json")
-                    with open(chunk_path, "r", encoding=self.encoding) as fp:
-                        items = json.load(fp)
-                        posts.extend(items)
-                json.dump(posts, f, ensure_ascii=False)
-
-            # Remove chunk json files
-            for i in range(runs):
-                chunk_path = posts_path.joinpath(f"{domain}_posts_{i}.json")
-                os.remove(chunk_path)
+            # Merge all chunks into a single file and remove temporary chunk files
+            self._merge_chunks(base_filename, runs, posts_path, merge_mode="list")
 
     def collect_groups(self, domains: list[str], path: str) -> None:
         """Collect group information for the specified domains and save to groups.json."""
