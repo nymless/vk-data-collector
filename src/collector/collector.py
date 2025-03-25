@@ -75,7 +75,7 @@ class Collector:
         with open(file_path, "w", encoding=self.encoding) as f:
             json.dump(groups, f, ensure_ascii=False)
 
-    def collect_comments(self, owner_id: int, post_id: int) -> list[Comment]:
+    def get_comments(self, owner_id: int, post_id: int) -> list[Comment]:
         """Collect all post comments along with their nested threads."""
 
         chunk_size = 100
@@ -150,7 +150,7 @@ class Collector:
                 if post["comments"]["count"] == 0:
                     continue
 
-                post_comments = self.collect_comments(post["owner_id"], post["id"])
+                post_comments = self.get_comments(post["owner_id"], post["id"])
 
                 key = f"{post['owner_id']}_{post['id']}"
                 comments_dict[key] = post_comments
