@@ -134,29 +134,30 @@ class Collector:
 
         return top_level_comments
 
-    def collect_comments_for_posts(self, posts_file_path: str, path: str) -> None:
+    def collect_comments_for_posts(self, post_files: list[str], path: str) -> None:
         """Collect comments for previously collected wall posts,
         saved to a file.
         """
         comments_path = self._process_path(path)
 
-        with open(posts_file_path, "r", encoding=self.encoding) as f:
-            posts = json.load(f)
+        for post_file in post_files:
+            with open(post_file, "r", encoding=self.encoding) as f:
+                posts = json.load(f)
 
-        comments_dict = {}
+            comments_dict = {}
 
-        for post in posts:
-            if post["comments"]["count"] == 0:
-                continue
+            for post in posts:
+                if post["comments"]["count"] == 0:
+                    continue
 
-            post_comments = self.collect_comments(post["owner_id"], post["id"])
+                post_comments = self.collect_comments(post["owner_id"], post["id"])
 
-            key = f"{post['owner_id']}_{post['id']}"
-            comments_dict[key] = post_comments
+                key = f"{post['owner_id']}_{post['id']}"
+                comments_dict[key] = post_comments
 
-        p = Path(posts_file_path)
-        output_filename = p.stem + "_comments.json"
-        comments_file_path = comments_path.joinpath(output_filename)
+            p = Path(post_file)
+            output_filename = p.stem + "_comments.json"
+            comments_file_path = comments_path.joinpath(output_filename)
 
-        with open(comments_file_path, "w", encoding=self.encoding) as f:
-            json.dump(comments_dict, f, ensure_ascii=False)
+            with open(comments_file_path, "w", encoding=self.encoding) as f:
+                json.dump(comments_dict, f, ensure_ascii=False)
