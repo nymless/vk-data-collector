@@ -110,7 +110,7 @@ class Collector:
             )
         return final_saved_files
 
-    def collect_groups(self, domains: list[str], path: str) -> None:
+    def collect_groups(self, domains: list[str], path: str) -> list[str]:
         """Collect group information for the specified domains and save to groups.json."""
 
         groups_path = self._process_path(path)
@@ -119,16 +119,20 @@ class Collector:
             "activity,wall,city,description,cover,members_count,place,site,"
             "status,public_date_label,age_limits,has_photo,wiki_page,verified"
         )
-        response = self.service.get_groups_by_domains(
-            ",".join(domains),
-            fields=fields,
-        )
 
-        groups = response["response"]["groups"]
+        saved_files = []
 
-        file_path = groups_path.joinpath("groups.json")
-        with open(file_path, "w", encoding=self.encoding) as f:
-            json.dump(groups, f, ensure_ascii=False)
+        for domain in domains:
+            response = self.service.get_group_by_domain(domain, fields=fields)
+
+            groups = response["response"]["groups"]
+
+            file_path = groups_path.joinpath(f"{domain}_group.json")
+            with open(file_path, "w", encoding=self.encoding) as f:
+                json.dump(groups, f, ensure_ascii=False)
+                
+            saved_files.append(file_path)
+        return saved_files
 
     def get_comments(self, owner_id: int, post_id: int) -> list[Comment]:
         """Collect all comments for a post (including nested replies)."""

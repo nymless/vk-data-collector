@@ -27,13 +27,13 @@ class Service:
         params["domain"] = domain
         return self._execute_request(method, params)
 
-    def get_groups_by_ids(self, ids: str, **params) -> GroupsGetById:
+    def get_group_by_id(self, id: str, **params) -> GroupsGetById:
         method = "groups.getById"
-        params["group_ids"] = ids
+        params["group_id"] = id
         return self._execute_request(method, params)
 
-    def get_groups_by_domains(self, domains: str, **params) -> GroupsGetById:
-        return self.get_groups_by_ids(domains, **params)
+    def get_group_by_domain(self, domain: str, **params) -> GroupsGetById:
+        return self.get_groups_by_id(domain, **params)
 
     def get_comments_by_wall_post(
         self, owner_id: int, post_id: int, **params
