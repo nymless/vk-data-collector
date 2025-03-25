@@ -13,13 +13,69 @@ class Collector:
         self.encoding = sys.getdefaultencoding()
 
     def _process_path(self, path: str) -> Path:
+        """Ensure that the given path exists by creating directories if needed."""
+
         p = Path(path)
         p.mkdir(parents=True, exist_ok=True)
         return p
 
+    def _write_chunk(
+        self, base_filename: str, chunk_index: int, data: list | dict, path: Path
+    ) -> None:
+        """Save a single chunk of data to a file with the name '{base_filename}_
+        chunk_{chunk_index}.json'.
+        """
+        chunk_file_path = path.joinpath(f"{base_filename}_chunk_{chunk_index}.json")
+        with open(chunk_file_path, "w", encoding=self.encoding) as f:
+            json.dump(data, f, ensure_ascii=False)
+
+    def _merge_chunks(
+        self,
+        base_filename: str,
+        total_chunks: int,
+        path: Path,
+        merge_mode: str = "list",
+    ) -> None:
+        """Merge all saved chunks into a single JSON file named '{base_filename}.json'.
+
+        The merge_mode parameter defines the merging strategy:
+        - 'list': concatenates lists using extend,
+        - 'dict': merges dictionaries using update.
+
+        The temporary chunk files are removed only after the final JSON file
+        has been saved.
+        """
+        if merge_mode == "list":
+            merged_data = []
+        elif merge_mode == "dict":
+            merged_data = {}
+        else:
+            raise ValueError("merge_mode must be either 'list' or 'dict'")
+
+        chunk_files = []
+        # Read and merge all chunk files
+        for i in range(total_chunks):
+            chunk_file_path = path.joinpath(f"{base_filename}_chunk_{i}.json")
+            chunk_files.append(chunk_file_path)
+            with open(chunk_file_path, "r", encoding=self.encoding) as f:
+                chunk_data = json.load(f)
+            if merge_mode == "list":
+                merged_data.extend(chunk_data)
+            elif merge_mode == "dict":
+                merged_data.update(chunk_data)
+
+        # Save final JSON file
+        final_file_path = path.joinpath(f"{base_filename}.json")
+        with open(final_file_path, "w", encoding=self.encoding) as f:
+            json.dump(merged_data, f, ensure_ascii=False)
+
+        # Remove all temporary chunk files
+        for chunk_file_path in chunk_files:
+            os.remove(chunk_file_path)
+
     def collect_all_posts(self, domains: list[str], path: str) -> None:
-        """Collect all posts from the specified VK domains (screen names)
-        and save them to JSON files.
+        """Collect all posts for the specified VK domains and save them in chunks,
+        then merge the chunks into a single output file.
         """
         for domain in domains:
             posts_path = self._process_path(path)
@@ -58,6 +114,8 @@ class Collector:
                 os.remove(chunk_path)
 
     def collect_groups(self, domains: list[str], path: str) -> None:
+        """Collect group information for the specified domains and save to groups.json."""
+
         groups_path = self._process_path(path)
 
         fields = (
@@ -76,7 +134,7 @@ class Collector:
             json.dump(groups, f, ensure_ascii=False)
 
     def get_comments(self, owner_id: int, post_id: int) -> list[Comment]:
-        """Collect all post comments along with their nested threads."""
+        """Collect all comments for a post (including nested replies)."""
 
         chunk_size = 100
 
@@ -134,9 +192,12 @@ class Collector:
 
         return top_level_comments
 
-    def collect_comments_for_posts(self, post_files: list[str], path: str) -> None:
-        """Collect comments for previously collected wall posts,
-        saved to a file.
+    def collect_comments_for_posts(
+        self, post_files: list[str], path: str, posts_chunk_size: int = 100
+    ) -> None:
+        """Collect comments for the previously collected posts by processing posts
+        in chunks (default: 100 posts per chunk). Each chunk is saved as
+        a temporary JSON file, then all chunks are merged into a single output file.
         """
         comments_path = self._process_path(path)
 
@@ -144,20 +205,29 @@ class Collector:
             with open(post_file, "r", encoding=self.encoding) as f:
                 posts = json.load(f)
 
-            comments_dict = {}
+            num_posts = len(posts)
+            total_chunks = (num_posts + posts_chunk_size - 1) // posts_chunk_size
+            base_filename = Path(post_file).stem + "_comments"
 
-            for post in posts:
-                if post["comments"]["count"] == 0:
-                    continue
+            for chunk_index in range(total_chunks):
+                start = chunk_index * posts_chunk_size
+                end = min(start + posts_chunk_size, num_posts)
+                chunk_posts = posts[start:end]
 
-                post_comments = self.get_comments(post["owner_id"], post["id"])
+                comments_dict_chunk = {}
 
-                key = f"{post['owner_id']}_{post['id']}"
-                comments_dict[key] = post_comments
+                for post in chunk_posts:
+                    if post["comments"]["count"] == 0:
+                        continue
 
-            p = Path(post_file)
-            output_filename = p.stem + "_comments.json"
-            comments_file_path = comments_path.joinpath(output_filename)
+                    post_comments = self.get_comments(post["owner_id"], post["id"])
+                    key = f"{post['owner_id']}_{post['id']}"
+                    comments_dict_chunk[key] = post_comments
 
-            with open(comments_file_path, "w", encoding=self.encoding) as f:
-                json.dump(comments_dict, f, ensure_ascii=False)
+                self._write_chunk(
+                    base_filename, chunk_index, comments_dict_chunk, comments_path
+                )
+
+            self._merge_chunks(
+                base_filename, total_chunks, comments_path, merge_mode="dict"
+            )
