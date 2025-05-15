@@ -1,8 +1,8 @@
-from client.client import Client
-from lib.decorators.rate_limited import rate_limited
-from lib.types.methods.groups_get_by_id import GroupsGetById
-from lib.types.methods.wall_get import WallGet
-from lib.types.methods.wall_get_comments import WallGetComments
+from src.client.client import Client
+from src.lib.decorators.rate_limited import rate_limited
+from src.lib.types.methods.groups_get_by_id import GroupsGetById
+from src.lib.types.methods.wall_get import WallGet
+from src.lib.types.methods.wall_get_comments import WallGetComments
 
 
 class Service:

@@ -1,16 +1,17 @@
-import os
-
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class Client:
     base_url = "https://api.vk.com"
 
-    def __init__(self):
-        self.service_token = os.getenv("SERVICE_TOKEN")
+    def __init__(self, token: str):
+        """
+        Initialize VK API client.
+
+        Args:
+            token: VK API access token
+        """
+        self.service_token = token
 
     def make_request(self, endpoint, params, v="5.199"):
         url = self.base_url + endpoint
