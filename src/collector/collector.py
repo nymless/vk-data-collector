@@ -2,6 +2,7 @@ import json
 import os
 import sys
 from pathlib import Path
+import datetime
 
 from src.lib.types.objects.comment import Comment
 from src.service.service import Service
@@ -76,8 +77,22 @@ class Collector:
         return str(final_file_path)
 
     def collect_all_posts(self, domains: list[str], path: str) -> list[str]:
-        """Collect all posts for the specified VK domains and save them in chunks,
-        then merge the chunks into a single output file.
+        """Collect all posts for the specified VK domains and save them in chunks.
+        Then merge the chunks into a single output file.
+        """
+        return self._collect_posts_with_filter(domains, path)
+
+    def collect_posts_to_date(self, domains: list[str], path: str, date_to: str) -> list[str]:
+        """Collect only posts newer than date_to (YYYY-MM-DD) for the specified VK domains
+        (posts with date > date_to).
+        """
+        dt = datetime.datetime.strptime(date_to, "%Y-%m-%d")
+        timestamp = int(dt.timestamp())
+        return self._collect_posts_with_filter(domains, path, date_to=timestamp)
+
+    def _collect_posts_with_filter(self, domains: list[str], path: str, date_to: int = None) -> list[str]:
+        """Collect posts for the specified VK domains.
+        Optionally filtering only posts newer than date_to.
         """
         final_saved_files = []
 
@@ -85,13 +100,13 @@ class Collector:
             posts_path = self._process_path(path)
 
             response = self.service.get_wall_posts_by_domain(domain, count=1)
-
-            # Get the total count of posts and determine the number of chunks
             count = response["response"]["count"]
             chunk_size = 100
             runs = (count + chunk_size - 1) // chunk_size
 
             base_filename = f"{domain}_posts"
+            chunk_index = 0
+            stop_collecting = False
             for i in range(runs):
                 response = self.service.get_wall_posts_by_domain(
                     domain, count=chunk_size, offset=chunk_size * i
@@ -101,13 +116,27 @@ class Collector:
                 )
                 items = response["response"]["items"]
 
-                # Save each chunk to a separate file
-                self._write_chunk(base_filename, i, items, posts_path)
+                filtered_items = []
+                for post in items:
+                    post_date = post["date"]
+                    # If date_to is set, stop collecting as soon as we reach an older post
+                    if date_to is not None and post_date <= date_to:
+                        stop_collecting = True
+                        break
+                    filtered_items.append(post)
+
+                # Save each chunk with only posts newer then date_to
+                if filtered_items:
+                    self._write_chunk(base_filename, chunk_index, filtered_items, posts_path)
+                    chunk_index += 1
+                if stop_collecting:
+                    break
 
             # Merge all chunks into a single file and remove temporary chunk files
-            final_saved_files.append(
-                self._merge_chunks(base_filename, runs, posts_path, merge_mode="list")
-            )
+            if chunk_index > 0:
+                final_saved_files.append(
+                    self._merge_chunks(base_filename, chunk_index, posts_path, merge_mode="list")
+                )
         return final_saved_files
 
     def collect_groups(self, domains: list[str], path: str) -> list[str]:
