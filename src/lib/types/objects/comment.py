@@ -1,6 +1,6 @@
 from typing import Any, Optional, TypedDict
 
-from lib.types.objects.donut import Donut
+from src.lib.types.objects.donut import Donut
 
 
 class TreadComment(TypedDict):

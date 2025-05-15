@@ -3,8 +3,8 @@ import os
 import sys
 from pathlib import Path
 
-from lib.types.objects.comment import Comment
-from service.service import Service
+from src.lib.types.objects.comment import Comment
+from src.service.service import Service
 
 
 class Collector:

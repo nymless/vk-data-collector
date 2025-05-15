@@ -1,13 +1,13 @@
 from typing import Any, Literal, TypedDict
 
-from lib.types.objects.comments import Comments
-from lib.types.objects.copyright import Copyright
-from lib.types.objects.donut import Donut
-from lib.types.objects.geo import Geo
-from lib.types.objects.likes import Likes
-from lib.types.objects.post_source import PostSource
-from lib.types.objects.reposts import Reposts
-from lib.types.objects.views import Views
+from src.lib.types.objects.comments import Comments
+from src.lib.types.objects.copyright import Copyright
+from src.lib.types.objects.donut import Donut
+from src.lib.types.objects.geo import Geo
+from src.lib.types.objects.likes import Likes
+from src.lib.types.objects.post_source import PostSource
+from src.lib.types.objects.reposts import Reposts
+from src.lib.types.objects.views import Views
 
 
 class Post(TypedDict):

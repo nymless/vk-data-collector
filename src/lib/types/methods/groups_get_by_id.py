@@ -1,7 +1,7 @@
 from typing import TypedDict
 
-from lib.types.objects.group import Group
-from lib.types.objects.user import User
+from src.lib.types.objects.group import Group
+from src.lib.types.objects.user import User
 
 
 class Response(TypedDict):
