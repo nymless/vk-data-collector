@@ -82,7 +82,7 @@ class Collector:
         """
         return self._collect_posts_with_filter(domains, path)
 
-    def collect_posts_to_date(self, domains: list[str], path: str, date_to: str) -> list[str]:
+    def collect_posts_to_date(self, domains: list[str], date_to: str, path: str) -> list[str]:
         """Collect only posts newer than date_to (YYYY-MM-DD) for the specified VK domains
         (posts with date > date_to).
         """

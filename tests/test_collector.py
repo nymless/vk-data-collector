@@ -41,7 +41,7 @@ def test_collect_posts_to_date(tmp_path):
     # Collect posts up to date "2025-03-01" (timestamp 1740769200)
     # Only the first post (1740769200) should be included
     result_files = collector.collect_posts_to_date(
-        ["testgroup"], str(tmp_path), "2025-02-28"
+        ["testgroup"], "2025-02-28", str(tmp_path),
     )
     assert len(result_files) == 1
 
