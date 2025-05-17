@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vk-data-collector"
-version = "0.2.1"
+version = "0.2.4"
 description = "A Python library for collecting data from VK (VKontakte) social network"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -38,7 +38,7 @@ Issues = "https://github.com/nymless/vk-data-collector/issues"
 src-layout = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["vk_data_collector"]
+packages = ["src/vk_data_collector"]
 
 [dependency-groups]
 dev = [

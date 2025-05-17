@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 import datetime
 
-from src.lib.types.objects.comment import Comment
-from src.service.service import Service
+from vk_data_collector.types.objects.comment import Comment
+from vk_data_collector.service.service import Service
 
 
 class Collector:

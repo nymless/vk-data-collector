@@ -1,8 +1,8 @@
-from src.client.client import Client
-from src.collector.collector import Collector
-from src.service.service import Service
+from vk_data_collector.client.client import Client
+from vk_data_collector.collector.collector import Collector
+from vk_data_collector.service.service import Service
 
-__version__ = "0.1.0"
+__version__ = "0.2.4"
 
 
 def create_collector(token: str) -> Collector:

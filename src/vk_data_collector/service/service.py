@@ -1,8 +1,8 @@
-from src.client.client import Client
-from src.lib.decorators.rate_limited import rate_limited
-from src.lib.types.methods.groups_get_by_id import GroupsGetById
-from src.lib.types.methods.wall_get import WallGet
-from src.lib.types.methods.wall_get_comments import WallGetComments
+from vk_data_collector.client.client import Client
+from vk_data_collector.utils.decorators.rate_limited import rate_limited
+from vk_data_collector.types.methods.groups_get_by_id import GroupsGetById
+from vk_data_collector.types.methods.wall_get import WallGet
+from vk_data_collector.types.methods.wall_get_comments import WallGetComments
 
 
 class Service:
